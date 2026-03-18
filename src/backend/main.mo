@@ -230,7 +230,7 @@ actor {
   };
 
   var feeRecords : Map.Map<AdmissionNumber, FeeRecordPersist> = Map.empty<AdmissionNumber, FeeRecordPersist>();
-  var lastAdmissionNumber : Nat = 0;
+  stable var lastAdmissionNumber : Nat = 10423;
   let userProfiles = Map.empty<StaffId, UserProfilePersist>();
 
   let accessControlState = AccessControl.initState();
@@ -337,7 +337,7 @@ actor {
 
   func generateAdmissionNumber() : AdmissionNumber {
     lastAdmissionNumber += 1;
-    "KDS/ADM/" # lastAdmissionNumber.toText();
+    "KFS/ADM/" # lastAdmissionNumber.toText();
   };
 
   public shared ({
