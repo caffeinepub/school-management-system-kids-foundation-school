@@ -8,15 +8,19 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, LogIn } from "lucide-react";
+import { Loader2, LogIn, Users } from "lucide-react";
 import { type FormEvent, useState } from "react";
 import { toast } from "sonner";
 
 interface AdminLoginProps {
   onLoginSuccess: () => void;
+  onOpenParentPortal?: () => void;
 }
 
-export default function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
+export default function AdminLogin({
+  onLoginSuccess,
+  onOpenParentPortal,
+}: AdminLoginProps) {
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -115,8 +119,18 @@ export default function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
           </form>
         </CardContent>
       </Card>
-      <footer className="mt-8">
-        <p className="text-sm text-center text-muted-foreground">
+      <footer className="mt-8 text-center space-y-3">
+        {onOpenParentPortal && (
+          <button
+            type="button"
+            onClick={onOpenParentPortal}
+            className="inline-flex items-center gap-2 text-sm text-primary hover:underline"
+          >
+            <Users className="h-4 w-4" />
+            Parent Portal — Check Your Child's Details
+          </button>
+        )}
+        <p className="text-sm text-muted-foreground">
           Built & Developed by SS. Zahir Khan
         </p>
       </footer>

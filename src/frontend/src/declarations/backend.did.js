@@ -108,6 +108,21 @@ export const MonthlyPaymentPure = IDL.Record({
   'october' : IDL.Nat,
   'december' : IDL.Nat,
 });
+export const ParentStudentInfo = IDL.Record({
+  'studentName' : IDL.Text,
+  'dateOfBirth' : Time,
+  'admissionDate' : Time,
+  'isFreeStudent' : IDL.Bool,
+  'motherName' : IDL.Text,
+  'admissionNumber' : AdmissionNumber,
+  'fatherName' : IDL.Text,
+  'admittedClass' : ClassName,
+  'address' : IDL.Text,
+  'gender' : Gender,
+  'admissionAmount' : IDL.Nat,
+  'phoneNumber' : IDL.Text,
+  'monthlyPayments' : MonthlyPaymentPure,
+});
 export const FeeRecordPure = IDL.Record({
   'paidMonths' : IDL.Vec(Month),
   'studentAdmission' : StudentAdmissionPure,
@@ -490,6 +505,11 @@ export const idlFactory = ({ IDL }) => {
     'searchStudent' : IDL.Func(
         [IDL.Text],
         [IDL.Vec(StudentAdmissionPure)],
+        ['query'],
+      ),
+    'getStudentInfoForParent' : IDL.Func(
+        [AdmissionNumber],
+        [IDL.Opt(ParentStudentInfo)],
         ['query'],
       ),
     'updateStudentRecord' : IDL.Func(

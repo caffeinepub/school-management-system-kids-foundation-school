@@ -10,6 +10,7 @@ import type {
   Gender,
   Month,
   MonthlyPayments,
+  ParentStudentInfo,
   PendingFeeRecord,
   StudentAdmissionPersist,
   StudentAdmissionPure,
@@ -499,6 +500,22 @@ export function useGetFreeStudentsData() {
     enabled: !!actor && !actorFetching,
     staleTime: 0,
     refetchOnMount: true,
+    retry: 1,
+  });
+}
+
+// Parent Portal - Public query (no auth required)
+export function useGetStudentInfoForParent(admissionNumber: string) {
+  const { actor, isFetching: actorFetching } = useActor();
+
+  return useQuery<ParentStudentInfo | null>({
+    queryKey: ["parentStudentInfo", admissionNumber],
+    queryFn: async () => {
+      if (!actor) throw new Error("Actor not available");
+      return actor.getStudentInfoForParent(admissionNumber);
+    },
+    enabled: !!actor && !actorFetching && admissionNumber.trim().length > 0,
+    staleTime: 0,
     retry: 1,
   });
 }

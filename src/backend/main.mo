@@ -160,6 +160,22 @@ actor {
     paymentStatus : Bool;
   };
 
+  public type ParentStudentInfo = {
+    studentName : Text;
+    fatherName : Text;
+    motherName : Text;
+    admittedClass : ClassName;
+    gender : Gender;
+    dateOfBirth : Time.Time;
+    address : Text;
+    phoneNumber : Text;
+    admissionDate : Time.Time;
+    admissionAmount : Nat;
+    admissionNumber : AdmissionNumber;
+    isFreeStudent : Bool;
+    monthlyPayments : MonthlyPaymentPure;
+  };
+
   func toUserProfilePure(profile : UserProfilePersist) : UserProfilePure {
     switch (profile) {
       case (#staff(staffProfile)) {
@@ -1163,4 +1179,43 @@ actor {
       func(record) { record.studentAdmission }
     ).toArray();
   };
+
+  public query func getStudentInfoForParent(admissionNumber : AdmissionNumber) : async ?ParentStudentInfo {
+    switch (feeRecords.get(admissionNumber)) {
+      case (?record) {
+        let admission = record.studentAdmission;
+        let payments = record.monthlyPayments;
+        ?{
+          studentName = admission.studentName;
+          fatherName = admission.fatherName;
+          motherName = admission.motherName;
+          admittedClass = admission.admittedClass;
+          gender = admission.gender;
+          dateOfBirth = admission.dateOfBirth;
+          address = admission.address;
+          phoneNumber = admission.phoneNumber;
+          admissionDate = admission.admissionDate;
+          admissionAmount = admission.admissionAmount;
+          admissionNumber = admission.admissionNumber;
+          isFreeStudent = admission.isFreeStudent;
+          monthlyPayments = {
+            january = payments.january;
+            february = payments.february;
+            march = payments.march;
+            april = payments.april;
+            may = payments.may;
+            june = payments.june;
+            july = payments.july;
+            august = payments.august;
+            september = payments.september;
+            october = payments.october;
+            november = payments.november;
+            december = payments.december;
+          };
+        };
+      };
+      case (null) { null };
+    };
+  };
+
 };

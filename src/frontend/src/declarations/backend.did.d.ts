@@ -65,6 +65,21 @@ export interface MonthlyPaymentPure {
   'october' : bigint,
   'december' : bigint,
 }
+export interface ParentStudentInfo {
+  'studentName' : string,
+  'dateOfBirth' : Time,
+  'admissionDate' : Time,
+  'isFreeStudent' : boolean,
+  'motherName' : string,
+  'admissionNumber' : AdmissionNumber,
+  'fatherName' : string,
+  'admittedClass' : ClassName,
+  'address' : string,
+  'gender' : Gender,
+  'admissionAmount' : bigint,
+  'phoneNumber' : string,
+  'monthlyPayments' : MonthlyPaymentPure,
+}
 export interface MonthlyPayments {
   'may' : bigint,
   'march' : bigint,
@@ -186,6 +201,7 @@ export interface _SERVICE {
   >,
   'saveCallerUserProfile' : ActorMethod<[UserProfilePure], undefined>,
   'searchStudent' : ActorMethod<[string], Array<StudentAdmissionPure>>,
+  'getStudentInfoForParent' : ActorMethod<[AdmissionNumber], [] | [ParentStudentInfo]>,
   'updateStudentRecord' : ActorMethod<
     [AdmissionNumber, StudentAdmissionPure],
     undefined

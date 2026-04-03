@@ -219,6 +219,21 @@ export interface TotalAmountRecord {
     className: ClassName;
     monthlyFeesTotal: bigint;
 }
+export interface ParentStudentInfo {
+    studentName: string;
+    fatherName: string;
+    motherName: string;
+    admittedClass: ClassName;
+    gender: Gender;
+    dateOfBirth: Time;
+    address: string;
+    phoneNumber: string;
+    admissionDate: Time;
+    admissionAmount: bigint;
+    admissionNumber: AdmissionNumber;
+    isFreeStudent: boolean;
+    monthlyPayments: MonthlyPaymentPure;
+}
 export enum Gender {
     other = "other",
     female = "female",
@@ -265,6 +280,7 @@ export interface backendInterface {
     markMonthlyPayments(admissionNumber: AdmissionNumber, payments: MonthlyPayments): Promise<void>;
     saveCallerUserProfile(profile: UserProfilePure): Promise<void>;
     searchStudent(searchQuery: string): Promise<Array<StudentAdmissionPure>>;
+    getStudentInfoForParent(admissionNumber: AdmissionNumber): Promise<ParentStudentInfo | null>;
     updateStudentRecord(admissionNumber: AdmissionNumber, updatedAdmission: StudentAdmissionPure): Promise<void>;
 }
 import type { AdminProfilePure as _AdminProfilePure, AdmissionNumber as _AdmissionNumber, ClassName as _ClassName, ExternalBlob as _ExternalBlob, FeeExportRecord as _FeeExportRecord, FeeRecordPure as _FeeRecordPure, Gender as _Gender, Month as _Month, MonthlyPaymentPure as _MonthlyPaymentPure, StaffProfilePure as _StaffProfilePure, StudentAdmissionPersist as _StudentAdmissionPersist, StudentAdmissionPure as _StudentAdmissionPure, Time as _Time, UserProfilePure as _UserProfilePure, UserRole as _UserRole } from "./declarations/backend.did.d.ts";
@@ -694,6 +710,78 @@ export class Backend implements backendInterface {
         } else {
             const result = await this.actor.updateStudentRecord(arg0, await to_candid_StudentAdmissionPure_n1(this.uploadFile, this.downloadFile, arg1));
             return result;
+        }
+    }
+    async getStudentInfoForParent(arg0: AdmissionNumber): Promise<ParentStudentInfo | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getStudentInfoForParent(arg0);
+                if (result.length === 0) return null;
+                const r = result[0] as any;
+                return {
+                    studentName: r.studentName,
+                    fatherName: r.fatherName,
+                    motherName: r.motherName,
+                    admittedClass: r.admittedClass,
+                    gender: from_candid_Gender_n10(this.uploadFile, this.downloadFile, r.gender),
+                    dateOfBirth: r.dateOfBirth,
+                    address: r.address,
+                    phoneNumber: r.phoneNumber,
+                    admissionDate: r.admissionDate,
+                    admissionAmount: r.admissionAmount,
+                    admissionNumber: r.admissionNumber,
+                    isFreeStudent: r.isFreeStudent,
+                    monthlyPayments: {
+                        january: r.monthlyPayments.january,
+                        february: r.monthlyPayments.february,
+                        march: r.monthlyPayments.march,
+                        april: r.monthlyPayments.april,
+                        may: r.monthlyPayments.may,
+                        june: r.monthlyPayments.june,
+                        july: r.monthlyPayments.july,
+                        august: r.monthlyPayments.august,
+                        september: r.monthlyPayments.september,
+                        october: r.monthlyPayments.october,
+                        november: r.monthlyPayments.november,
+                        december: r.monthlyPayments.december,
+                    },
+                };
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getStudentInfoForParent(arg0);
+            if (result.length === 0) return null;
+            const r = result[0] as any;
+            return {
+                studentName: r.studentName,
+                fatherName: r.fatherName,
+                motherName: r.motherName,
+                admittedClass: r.admittedClass,
+                gender: from_candid_Gender_n10(this.uploadFile, this.downloadFile, r.gender),
+                dateOfBirth: r.dateOfBirth,
+                address: r.address,
+                phoneNumber: r.phoneNumber,
+                admissionDate: r.admissionDate,
+                admissionAmount: r.admissionAmount,
+                admissionNumber: r.admissionNumber,
+                isFreeStudent: r.isFreeStudent,
+                monthlyPayments: {
+                    january: r.monthlyPayments.january,
+                    february: r.monthlyPayments.february,
+                    march: r.monthlyPayments.march,
+                    april: r.monthlyPayments.april,
+                    may: r.monthlyPayments.may,
+                    june: r.monthlyPayments.june,
+                    july: r.monthlyPayments.july,
+                    august: r.monthlyPayments.august,
+                    september: r.monthlyPayments.september,
+                    october: r.monthlyPayments.october,
+                    november: r.monthlyPayments.november,
+                    december: r.monthlyPayments.december,
+                },
+            };
         }
     }
 }

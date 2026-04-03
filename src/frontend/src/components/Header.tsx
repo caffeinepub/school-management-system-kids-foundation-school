@@ -42,6 +42,7 @@ export default function Header({
     ...(isAdmin
       ? [{ id: "staff" as ViewType, label: "Staff Management" }]
       : []),
+    { id: "parent" as ViewType, label: "Parent Portal" },
   ];
 
   return (

@@ -11,6 +11,7 @@ import ClassManagement from "./pages/ClassManagement";
 import Dashboard from "./pages/Dashboard";
 import FeeManagement from "./pages/FeeManagement";
 import LoginScreen from "./pages/LoginScreen";
+import ParentPortal from "./pages/ParentPortal";
 import ProfileSetup from "./pages/ProfileSetup";
 import StaffManagement from "./pages/StaffManagement";
 import StudentSearch from "./pages/StudentSearch";
@@ -21,7 +22,8 @@ export type ViewType =
   | "search"
   | "fees"
   | "classes"
-  | "staff";
+  | "staff"
+  | "parent";
 
 function App() {
   const { identity, isInitializing: isIdentityInitializing } =
@@ -64,8 +66,18 @@ function App() {
     );
   }
 
+  // Parent portal accessible without admin login
+  if (currentView === "parent") {
+    return <ParentPortal />;
+  }
+
   if (!isAdminLoggedIn) {
-    return <AdminLogin onLoginSuccess={() => setIsAdminLoggedIn(true)} />;
+    return (
+      <AdminLogin
+        onLoginSuccess={() => setIsAdminLoggedIn(true)}
+        onOpenParentPortal={() => setCurrentView("parent")}
+      />
+    );
   }
 
   // Show loading only during identity initialization
