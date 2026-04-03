@@ -1,23 +1,23 @@
-# School Management System — KIDS' FOUNDATION SCHOOL
+# School Management System - KIDS' FOUNDATION SCHOOL
 
 ## Current State
-Admission numbers are generated using `10000 + feeRecords.size()`. This causes a permanent collision once any admission number matches an existing map key — subsequent inserts overwrite that record instead of creating a new one, so `feeRecords.size()` never grows beyond the point of collision and every new student silently overwrites the same record.
+Admission numbers are generated using `lastAdmissionNumber` (stable var initialized to 10423). This counter resets to its initial value on fresh deployments, causing new admissions to start from KFS/ADM/1 instead of continuing from KFS/ADM/10424.
 
 ## Requested Changes (Diff)
 
 ### Add
-- A persistent `var lastAdmissionNumber : Nat` counter initialised to `0`.
-- Duplicate-check guard: before inserting, assert the generated key is not already in `feeRecords`.
+- `admissionSeed` mutable variable for pseudo-random entropy
+- Unique 5-digit random number check loop in `generateAdmissionNumber`
 
 ### Modify
-- `generateAdmissionNumber` — replace `feeRecords.size()` logic with: increment `lastAdmissionNumber` by 1, then return `"KDS/ADM/" # Nat.toText(lastAdmissionNumber)`.
-- `addAdmissionRecord` — call the updated generator so the counter is mutated at call time.
+- `generateAdmissionNumber` function: replace sequential counter with time-based pseudo-random 5-digit number (10000–99999), with duplicate check loop
 
 ### Remove
-- Old `randomNumber = 10000 + feeRecords.size()` expression.
+- Dependency on `lastAdmissionNumber` sequential counter for new admissions
 
 ## Implementation Plan
-1. Declare `var lastAdmissionNumber : Nat = 0` at actor level (stable-compatible via `var`).
-2. Rewrite `generateAdmissionNumber` to mutate and return the counter.
-3. Add a guard in `addAdmissionRecord` that traps if the generated admission number already exists (should never happen, but prevents silent overwrites).
-4. No frontend changes required — the admission number is returned from the backend and displayed as-is.
+1. Add `var admissionSeed : Nat = 0` for entropy tracking
+2. Rewrite `generateAdmissionNumber` to use `Time.now()` + admissionSeed to produce values in range 10000–99999
+3. Loop until a unique (non-duplicate) admission number is found
+4. Format as `KFS/ADM/XXXXX`
+5. No other changes to backend or frontend

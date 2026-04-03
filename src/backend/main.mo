@@ -1,4 +1,5 @@
 import AccessControl "authorization/access-control";
+import Int "mo:core/Int";
 import Iter "mo:core/Iter";
 import List "mo:core/List";
 import Map "mo:core/Map";
@@ -230,7 +231,8 @@ actor {
   };
 
   var feeRecords : Map.Map<AdmissionNumber, FeeRecordPersist> = Map.empty<AdmissionNumber, FeeRecordPersist>();
-  stable var lastAdmissionNumber : Nat = 10423;
+  var lastAdmissionNumber : Nat = 10423;
+  var admissionSeed : Nat = 0;
   let userProfiles = Map.empty<StaffId, UserProfilePersist>();
 
   let accessControlState = AccessControl.initState();
@@ -335,9 +337,25 @@ actor {
     userProfiles.add(staffPrincipal, staffProfile);
   };
 
+  // Generate a unique random 5-digit admission number
   func generateAdmissionNumber() : AdmissionNumber {
-    lastAdmissionNumber += 1;
-    "KFS/ADM/" # lastAdmissionNumber.toText();
+    admissionSeed += 1;
+    let timePart : Nat = Int.abs(Time.now() / 1_000_000);
+    var seed : Nat = (timePart + admissionSeed * 73856093 + 1013904223) % 90000 + 10000;
+    var admNum = "KFS/ADM/" # seed.toText();
+    var loopCount : Nat = 0;
+    var found = false;
+    while (not found and loopCount < 200) {
+      switch (feeRecords.get(admNum)) {
+        case (null) { found := true };
+        case (?_) {
+          seed := (seed * 1103515245 + admissionSeed * 12345 + loopCount * 6364136223) % 90000 + 10000;
+          admNum := "KFS/ADM/" # seed.toText();
+          loopCount += 1;
+        };
+      };
+    };
+    admNum;
   };
 
   public shared ({
@@ -661,8 +679,6 @@ actor {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only staff and admin can search students");
     };
-
-    // TODO Lowercase search
 
     feeRecords.values().filter(
       func(record) {
