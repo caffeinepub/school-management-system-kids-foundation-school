@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, LogIn, Users } from "lucide-react";
+import { Copy, ExternalLink, Loader2, LogIn, Users } from "lucide-react";
 import { type FormEvent, useState } from "react";
 import { toast } from "sonner";
 
@@ -24,6 +24,8 @@ export default function AdminLogin({
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  const parentPortalUrl = `${window.location.origin}${window.location.pathname}#/parent-portal`;
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -52,6 +54,12 @@ export default function AdminLogin({
     }, 500);
   };
 
+  const handleCopyUrl = () => {
+    navigator.clipboard.writeText(parentPortalUrl).then(() => {
+      toast.success("Parent Portal link copied!");
+    });
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-primary/5 via-background to-accent/5 p-4">
       <Card className="w-full max-w-md shadow-xl">
@@ -72,7 +80,7 @@ export default function AdminLogin({
             </CardDescription>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="userId">User ID</Label>
@@ -84,6 +92,7 @@ export default function AdminLogin({
                 onChange={(e) => setUserId(e.target.value)}
                 disabled={isLoading}
                 className="h-11"
+                data-ocid="login.input"
               />
             </div>
             <div className="space-y-2">
@@ -96,6 +105,7 @@ export default function AdminLogin({
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoading}
                 className="h-11"
+                data-ocid="login.input"
               />
             </div>
             <Button
@@ -103,6 +113,7 @@ export default function AdminLogin({
               disabled={isLoading}
               className="w-full h-12 text-base"
               size="lg"
+              data-ocid="login.submit_button"
             >
               {isLoading ? (
                 <>
@@ -117,21 +128,54 @@ export default function AdminLogin({
               )}
             </Button>
           </form>
+
+          {/* Parent Portal Section */}
+          <div className="border-t pt-5">
+            <div className="flex items-center gap-2 mb-3">
+              <Users className="h-4 w-4 text-primary flex-shrink-0" />
+              <p className="text-sm font-semibold text-foreground">
+                Parent Portal
+              </p>
+            </div>
+            <p className="text-xs text-muted-foreground mb-3">
+              Are you a parent? Access your child's fee details and admission
+              information here — no login required.
+            </p>
+            <div className="flex gap-2">
+              {onOpenParentPortal && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 gap-1.5"
+                  onClick={onOpenParentPortal}
+                  data-ocid="login.primary_button"
+                >
+                  <ExternalLink className="h-3.5 w-3.5" />
+                  Open Parent Portal
+                </Button>
+              )}
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="gap-1.5 text-muted-foreground hover:text-foreground"
+                onClick={handleCopyUrl}
+                data-ocid="login.secondary_button"
+              >
+                <Copy className="h-3.5 w-3.5" />
+                Copy Link
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2 font-mono break-all">
+              {parentPortalUrl}
+            </p>
+          </div>
         </CardContent>
       </Card>
-      <footer className="mt-8 text-center space-y-3">
-        {onOpenParentPortal && (
-          <button
-            type="button"
-            onClick={onOpenParentPortal}
-            className="inline-flex items-center gap-2 text-sm text-primary hover:underline"
-          >
-            <Users className="h-4 w-4" />
-            Parent Portal — Check Your Child's Details
-          </button>
-        )}
+      <footer className="mt-6 text-center">
         <p className="text-sm text-muted-foreground">
-          Built & Developed by SS. Zahir Khan
+          Built &amp; Developed by SS. Zahir Khan
         </p>
       </footer>
     </div>

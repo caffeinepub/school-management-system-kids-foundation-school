@@ -25,6 +25,10 @@ export type ViewType =
   | "staff"
   | "parent";
 
+function isParentPortalRoute() {
+  return window.location.hash.startsWith("#/parent-portal");
+}
+
 function App() {
   const { identity, isInitializing: isIdentityInitializing } =
     useInternetIdentity();
@@ -38,6 +42,14 @@ function App() {
   const [currentView, setCurrentView] = useState<ViewType>("dashboard");
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
   const [isCheckingAdminSession, setIsCheckingAdminSession] = useState(true);
+  const [isParentRoute, setIsParentRoute] = useState(isParentPortalRoute);
+
+  // Listen for hash changes so browser back/forward and direct links work
+  useEffect(() => {
+    const handler = () => setIsParentRoute(isParentPortalRoute());
+    window.addEventListener("hashchange", handler);
+    return () => window.removeEventListener("hashchange", handler);
+  }, []);
 
   // Check admin login session on mount
   useEffect(() => {
@@ -54,6 +66,18 @@ function App() {
     }
   }, [isAuthenticated, userProfile]);
 
+  // Render Parent Portal immediately if on that route — no login needed
+  if (isParentRoute) {
+    return (
+      <ParentPortal
+        onBack={() => {
+          window.location.hash = "";
+          setIsParentRoute(false);
+        }}
+      />
+    );
+  }
+
   // Show admin login first if not logged in
   if (isCheckingAdminSession) {
     return (
@@ -66,16 +90,14 @@ function App() {
     );
   }
 
-  // Parent portal accessible without admin login
-  if (currentView === "parent") {
-    return <ParentPortal />;
-  }
-
   if (!isAdminLoggedIn) {
     return (
       <AdminLogin
         onLoginSuccess={() => setIsAdminLoggedIn(true)}
-        onOpenParentPortal={() => setCurrentView("parent")}
+        onOpenParentPortal={() => {
+          window.location.hash = "#/parent-portal";
+          setIsParentRoute(true);
+        }}
       />
     );
   }
@@ -128,20 +150,29 @@ function App() {
     return <ProfileSetup />;
   }
 
+  const handleNavigate = (view: ViewType) => {
+    if (view === "parent") {
+      window.location.hash = "#/parent-portal";
+      setIsParentRoute(true);
+    } else {
+      setCurrentView(view);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header
         currentView={currentView}
-        onNavigate={setCurrentView}
+        onNavigate={handleNavigate}
         isAdmin={isAdmin || false}
         onAdminLogout={() => setIsAdminLoggedIn(false)}
       />
       <main className="flex-1">
         {currentView === "dashboard" && (
-          <Dashboard onNavigate={setCurrentView} />
+          <Dashboard onNavigate={handleNavigate} />
         )}
         {currentView === "admission" && (
-          <AdmissionForm onNavigate={setCurrentView} />
+          <AdmissionForm onNavigate={handleNavigate} />
         )}
         {currentView === "search" && <StudentSearch />}
         {currentView === "fees" && <FeeManagement />}

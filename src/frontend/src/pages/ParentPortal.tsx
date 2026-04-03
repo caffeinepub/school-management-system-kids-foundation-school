@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   AlertCircle,
+  ArrowLeft,
   BookOpen,
   Calendar,
   IndianRupee,
@@ -102,7 +103,11 @@ function MonthFeeGrid({
   );
 }
 
-export default function ParentPortal() {
+interface ParentPortalProps {
+  onBack?: () => void;
+}
+
+export default function ParentPortal({ onBack }: ParentPortalProps) {
   const [inputValue, setInputValue] = useState("");
   const [searchAdmNo, setSearchAdmNo] = useState("");
 
@@ -141,7 +146,7 @@ export default function ParentPortal() {
             alt="KIDS' FOUNDATION SCHOOL"
             className="h-14 w-14 object-contain rounded-full border"
           />
-          <div>
+          <div className="flex-1">
             <h1 className="text-lg font-bold text-primary leading-tight">
               KIDS' FOUNDATION SCHOOL
             </h1>
@@ -149,6 +154,17 @@ export default function ParentPortal() {
               Parent Portal — Academic Session 2026
             </p>
           </div>
+          {onBack && (
+            <button
+              type="button"
+              onClick={onBack}
+              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              data-ocid="parent.link"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" />
+              Admin Login
+            </button>
+          )}
         </div>
       </div>
 
@@ -178,6 +194,7 @@ export default function ParentPortal() {
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                   className="h-10"
+                  data-ocid="parent.search_input"
                 />
               </div>
               <div className="flex items-end">
@@ -185,6 +202,7 @@ export default function ParentPortal() {
                   onClick={handleSearch}
                   disabled={isLoading || !inputValue.trim()}
                   className="h-10"
+                  data-ocid="parent.primary_button"
                 >
                   {isLoading ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -200,7 +218,7 @@ export default function ParentPortal() {
 
         {/* Loading */}
         {isLoading && (
-          <div className="text-center py-12">
+          <div className="text-center py-12" data-ocid="parent.loading_state">
             <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary mb-3" />
             <p className="text-sm text-muted-foreground">
               Fetching student details...
@@ -210,7 +228,7 @@ export default function ParentPortal() {
 
         {/* Error */}
         {isError && (
-          <Card className="border-destructive">
+          <Card className="border-destructive" data-ocid="parent.error_state">
             <CardContent className="pt-6">
               <div className="flex items-center gap-2 text-destructive">
                 <AlertCircle className="h-5 w-5" />
@@ -227,7 +245,7 @@ export default function ParentPortal() {
 
         {/* Not Found */}
         {notFound && (
-          <Card>
+          <Card data-ocid="parent.empty_state">
             <CardContent className="pt-6">
               <div className="flex flex-col items-center py-6 text-center gap-2">
                 <AlertCircle className="h-8 w-8 text-muted-foreground" />
@@ -298,7 +316,7 @@ export default function ParentPortal() {
                     </div>
                   </div>
                   <div className="flex items-start gap-2">
-                    <Calendar className="h-4 w-4 mt-0.5 text-muted-foreground flex-shrink-0" />
+                    <Calendar className="h-4 w-4 mt-0.5 text-muted-foreground flex-shrink-8" />
                     <div>
                       <p className="text-xs text-muted-foreground">
                         Date of Birth
